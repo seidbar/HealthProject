@@ -1,19 +1,18 @@
 import React, {useState, useEffect} from 'react';
 
-import {SafeAreaView, ScrollView, View, StatusBar} from 'react-native';
+import {SafeAreaView, ScrollView, View, StatusBar, Button} from 'react-native';
 
 import ScoreCard from '../Components/ScoreCard';
 import ProgressBar from '../Components/ProgressBar';
 
-const Home = ({route}) => {
+const Home = ({healthData, reload}) => {
   // Upon Loading, the Score is calculated
 
   const [score, setScore] = useState(0);
-  const healthData = route.params.healthData;
 
   useEffect(() => {
     calculateScore();
-  }, []);
+  });
 
   // Maps over the parameters and checks which percentage of the goal was reached (Max 100%). Then the scores are added.
   const calculateScore = () => {
@@ -45,6 +44,7 @@ const Home = ({route}) => {
                 );
               })
             : null}
+          <Button title="Reload" onPress={reload} />
         </ScrollView>
       </SafeAreaView>
       <View style></View>

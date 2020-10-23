@@ -1,16 +1,27 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import Navigation from './src/Components/Navigation';
-import {StyleSheet, View, Text} from 'react-native';
+import Home from './src/Screens/Home';
+import AppleHealthKit from 'react-native-health';
+import LoadData from './src/Helpers/LoadData';
 
 const App = () => {
   const [healthData, setHealthData] = useState([
-    {goal: 450, name: 'Active Energy', value: 700},
-    {goal: 8000, name: 'Step Count', value: 9496},
-    {goal: 10, name: 'Mindful Minutes', value: 12},
+    {name: 'Active Energy', goal: 450},
+    {name: 'Mindful Minutes', goal: 10},
+    {name: 'Step Count', goal: 8000},
   ]);
 
-  return <Navigation healthData={healthData} />;
+  // Upon loading, the component initalizes the Healthkit and saves all necessary data to the state
+  useEffect(() => {
+    reload();
+  }, []);
+
+  const reload = () => {
+    setHealthData(LoadData(null, healthData));
+  };
+
+  return <Home healthData={healthData} reload={reload} />;
 };
 
 export default App;
