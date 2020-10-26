@@ -22,6 +22,7 @@ const BottomTabBar = ({navigation, state}) => (
   </BottomNavigation>
 );
 
+// All Screens need to be defined here to be adressable with 'navigation.[name]'
 const TabNavigator = () => (
   <Navigator tabBar={(props) => <BottomTabBar {...props} />}>
     <Screen name="Score" component={HomeScreen} />

@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {SafeAreaView, Button} from 'react-native';
+import {SafeAreaView} from 'react-native';
 import {
   Divider,
+  Button,
   Icon,
   Layout,
   Text,
@@ -13,10 +14,13 @@ import LoadData from '../Helpers/LoadData';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
+// The Goal Settings screen allows the user to customize how the score should be calculated
+
 const GoalSettings = ({navigation, route}) => {
   const [healthData, setHealthData] = useContext(Context);
   const [weight, setWeight] = useState(route.params.weight);
   const [goal, setGoal] = useState(route.params.goal);
+  let cooooopy = [...healthData];
 
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
@@ -37,6 +41,9 @@ const GoalSettings = ({navigation, route}) => {
     setHealthData(healthDataCopy);
   };
 
+  // Weight allows the user to put emphasis on one or more parameters (Factor 0-5)
+  // !! Maybe create a modal that informs the user about the meaning of '0'
+
   const saveWeight = (increase) => {
     let healthDataCopy = [...healthData];
     healthDataCopy.forEach((dataset) => {
@@ -52,6 +59,18 @@ const GoalSettings = ({navigation, route}) => {
     setHealthData(healthDataCopy);
   };
 
+  const removeParameter = () => {
+    let healthDataCopy = [...healthData];
+    healthDataCopy.forEach((dataset, index) => {
+      if (dataset.name === route.params.name) {
+        healthDataCopy.splice(index, 1);
+      }
+    });
+    setHealthData(healthDataCopy);
+    navigateBack();
+  };
+
+  // Upon Changes the props should be reloaded
   useEffect(() => {
     healthData.forEach((dataset) => {
       if (dataset.name === route.params.name) {
@@ -74,16 +93,43 @@ const GoalSettings = ({navigation, route}) => {
           Change Daily Goal
         </Text>
         <Text>{goal}</Text>
-        <Button title="+" onPress={() => saveGoal(10)} />
-        <Button title="-" onPress={() => saveGoal(-10)} />
+        <Button
+          appearance="ghost"
+          status="primary"
+          onPress={() => saveGoal(10)}>
+          +
+        </Button>
+        <Button
+          appearance="ghost"
+          status="primary"
+          onPress={() => saveGoal(-10)}>
+          -
+        </Button>
       </Layout>
       <Layout style={{alignItems: 'center'}}>
         <Text category="h5" style={{marginVertical: 20}}>
           Weighting
         </Text>
         <Text>{weight}</Text>
-        <Button title="+" onPress={() => saveWeight(1)} />
-        <Button title="-" onPress={() => saveWeight(-1)} />
+        <Button
+          appearance="ghost"
+          status="primary"
+          onPress={() => saveWeight(1)}>
+          +
+        </Button>
+        <Button appearance="ghost" onPress={() => saveWeight(-1)}>
+          -
+        </Button>
+      </Layout>
+      <Layout style={{alignItems: 'center'}}>
+        <Button
+          appearance="ghost"
+          status="danger"
+          onPress={() => {
+            removeParameter();
+          }}>
+          Remove Parameter
+        </Button>
       </Layout>
     </SafeAreaView>
   );

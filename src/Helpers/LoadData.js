@@ -8,6 +8,7 @@ const LoadData = (options, healthData) => {
   healthDataCopy = [...healthData];
 
   // HealthKitOptions is an object that saves which data needs to be asked for
+  // !! Should be reworked to take an object
   const PERMS = AppleHealthKit.Constants.Permissions;
   const healthKitOptions = {
     permissions: {

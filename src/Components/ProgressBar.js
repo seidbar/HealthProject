@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 
+// A simple component to display progress
 const ProgressBar = ({name, goal, value}) => {
   return (
     <View style={styles.sectionContainer}>
