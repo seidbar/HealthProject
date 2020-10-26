@@ -38,7 +38,7 @@ const LoadData = (options, healthData) => {
     );
 
     AppleHealthKit.getStepCount(null, (err, results) => {
-      saveData('Step Count', results ? results.value : 0);
+      saveData('Step Count', results ? Math.floor(results.value) : 0);
     });
 
     AppleHealthKit.getMindfulSession(

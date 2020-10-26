@@ -2,12 +2,12 @@ import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 
 // A simple component to display progress
-const ProgressBar = ({name, goal, value}) => {
+const ProgressBar = ({name, goal, value, measure}) => {
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{name}</Text>
       <Text style={styles.sectionDescription}>
-        {value} / {goal}
+        {value} / {goal} {measure}
       </Text>
     </View>
   );

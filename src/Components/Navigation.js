@@ -3,22 +3,28 @@ import {NavigationContainer} from '@react-navigation/native';
 import HomeScreen from '../Screens/Home';
 import OptionsScreen from '../Screens/Options';
 import GoalScreen from '../Screens/GoalSettings';
+import ParameterScreen from '../Screens/ParameterAddition';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   BottomNavigation,
   BottomNavigationTab,
-  Layout,
-  Text,
+  Icon,
 } from '@ui-kitten/components';
 
 const {Navigator, Screen} = createBottomTabNavigator();
+
+const PersonIcon = (props) => <Icon {...props} name="person-outline" />;
+
+const SettingsIcon = (props) => <Icon {...props} name="settings-2-outline" />;
+
+const EmailIcon = (props) => <Icon {...props} name="email-outline" />;
 
 const BottomTabBar = ({navigation, state}) => (
   <BottomNavigation
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}>
-    <BottomNavigationTab title="SCORE" />
-    <BottomNavigationTab title="OPTIONS" />
+    <BottomNavigationTab title="SCORE" icon={PersonIcon} />
+    <BottomNavigationTab title="OPTIONS" icon={SettingsIcon} />
   </BottomNavigation>
 );
 
@@ -28,6 +34,7 @@ const TabNavigator = () => (
     <Screen name="Score" component={HomeScreen} />
     <Screen name="Options" component={OptionsScreen} />
     <Screen name="GoalSettings" component={GoalScreen} />
+    <Screen name="ParameterAddition" component={ParameterScreen} />
   </Navigator>
 );
 

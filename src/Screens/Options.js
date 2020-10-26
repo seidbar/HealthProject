@@ -1,7 +1,7 @@
-import React, {useContext, useState} from 'react';
-import {Icon, SelectItem} from '@ui-kitten/components';
+import React, {useContext} from 'react';
+import {Icon, SelectItem, Layout, Button} from '@ui-kitten/components';
 
-import {SafeAreaView, ScrollView, View, StatusBar, Button} from 'react-native';
+import {SafeAreaView, ScrollView} from 'react-native';
 import {Context} from '../Context/Store';
 
 const ForwardIcon = (props) => <Icon {...props} name="arrow-ios-forward" />;
@@ -22,10 +22,21 @@ const Options = ({navigation}) => {
                 name: element.name,
                 goal: element.goal,
                 weight: element.weight,
+                increment: element.increment,
               })
             }
           />
         ))}
+        <Layout style={{alignItems: 'center'}}>
+          <Button
+            appearance="ghost"
+            status="info"
+            onPress={() => {
+              navigation.navigate('ParameterAddition');
+            }}>
+            Add Parameters
+          </Button>
+        </Layout>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,13 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react';
 
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  StatusBar,
-  Button,
-  Text,
-} from 'react-native';
+import {SafeAreaView, ScrollView, StatusBar} from 'react-native';
+import {Button} from '@ui-kitten/components';
 import {Context} from '../Context/Store';
 
 import ScoreCard from '../Components/ScoreCard';
@@ -59,11 +53,14 @@ const Home = ({navigation}) => {
                     value={dataset.value}
                     goal={dataset.goal}
                     name={dataset.name}
+                    measure={dataset.measure}
                   />
                 );
               })
             : null}
-          <Button title="Reload" onPress={reload} />
+          <Button appearance="ghost" status="info" onPress={reload}>
+            Reload
+          </Button>
         </ScrollView>
       </SafeAreaView>
     </>

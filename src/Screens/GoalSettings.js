@@ -10,7 +10,6 @@ import {
   TopNavigationAction,
 } from '@ui-kitten/components';
 import {Context} from '../Context/Store';
-import LoadData from '../Helpers/LoadData';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -96,13 +95,13 @@ const GoalSettings = ({navigation, route}) => {
         <Button
           appearance="ghost"
           status="primary"
-          onPress={() => saveGoal(10)}>
+          onPress={() => saveGoal(route.params.increment)}>
           +
         </Button>
         <Button
           appearance="ghost"
           status="primary"
-          onPress={() => saveGoal(-10)}>
+          onPress={() => saveGoal(-route.params.increment)}>
           -
         </Button>
       </Layout>
