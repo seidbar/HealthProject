@@ -1,29 +1,37 @@
-import React, {useState, useEffect} from 'react';
-
+import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
+import HomeScreen from '../Screens/Home';
+import OptionsScreen from '../Screens/Options';
+import GoalScreen from '../Screens/GoalSettings';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import 'react-native-gesture-handler';
+import {
+  BottomNavigation,
+  BottomNavigationTab,
+  Layout,
+  Text,
+} from '@ui-kitten/components';
 
-import Home from '../Screens/Home';
-import Options from '../Screens/Options';
+const {Navigator, Screen} = createBottomTabNavigator();
 
-const Stack = createBottomTabNavigator();
+const BottomTabBar = ({navigation, state}) => (
+  <BottomNavigation
+    selectedIndex={state.index}
+    onSelect={(index) => navigation.navigate(state.routeNames[index])}>
+    <BottomNavigationTab title="SCORE" />
+    <BottomNavigationTab title="OPTIONS" />
+  </BottomNavigation>
+);
 
-const Navigation = ({healthData}) => {
-  useEffect(() => {
-    console.log(healthData);
-  });
+const TabNavigator = () => (
+  <Navigator tabBar={(props) => <BottomTabBar {...props} />}>
+    <Screen name="Score" component={HomeScreen} />
+    <Screen name="Options" component={OptionsScreen} />
+    <Screen name="GoalSettings" component={GoalScreen} />
+  </Navigator>
+);
 
-  return (
-    <Home healthData={healthData} />
-    /*   <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={Home} healthData={{healthData}} />
-        <Stack.Screen name="Options" component={Options} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  ); */
-  );
-};
-
-export default Navigation;
+export const AppNavigator = () => (
+  <NavigationContainer>
+    <TabNavigator />
+  </NavigationContainer>
+);

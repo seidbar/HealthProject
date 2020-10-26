@@ -56,8 +56,6 @@ const LoadData = (options, healthData) => {
           element.value = value;
         }
       });
-      // Set healthDataCopy.element.value = value
-      // where healthDataCopy.element.name = name
     } else {
       healthDataCopy.push({name, value});
     }

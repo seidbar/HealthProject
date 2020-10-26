@@ -1,15 +1,33 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {Icon, SelectItem} from '@ui-kitten/components';
 
-const Options = () => {
-  const logging = () => {
-    console.log('ayyyyy');
-  };
+import {SafeAreaView, ScrollView, View, StatusBar, Button} from 'react-native';
+import {Context} from '../Context/Store';
+
+const ForwardIcon = (props) => <Icon {...props} name="arrow-ios-forward" />;
+
+const Options = ({navigation}) => {
+  const [healthData, setHealthData] = useContext(Context);
 
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Options Screen</Text>
-    </View>
+    <SafeAreaView>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        {healthData.map((element, index) => (
+          <SelectItem
+            key={index}
+            accessoryRight={ForwardIcon}
+            title={element.name}
+            onPress={() =>
+              navigation.navigate('GoalSettings', {
+                name: element.name,
+                goal: element.goal,
+                weight: element.weight,
+              })
+            }
+          />
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
