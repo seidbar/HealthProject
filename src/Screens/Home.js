@@ -2,7 +2,8 @@ import React, {useState, useEffect, useContext} from 'react';
 
 import {SafeAreaView, ScrollView, StatusBar} from 'react-native';
 import {Button} from '@ui-kitten/components';
-import {Context} from '../Context/Store';
+import {Context} from '../Context/HealthData';
+import {Context as HealthKitContext} from '../Context/HealthKitPermissions';
 
 import ScoreCard from '../Components/ScoreCard';
 import ProgressBar from '../Components/ProgressBar';
@@ -11,15 +12,17 @@ import LoadData from '../Helpers/LoadData';
 const Home = ({navigation}) => {
   const [score, setScore] = useState(0);
   const [healthData, setHealthData] = useContext(Context);
+  const [healthKitPermissions, setHealthKitPermissions] = useContext(
+    HealthKitContext,
+  );
 
   const reload = () => {
-    setHealthData(LoadData(null, healthData));
-    calculateScore();
+    setHealthData(LoadData(healthKitPermissions, healthData));
   };
 
   useEffect(() => {
-    reload();
-  }, []);
+    calculateScore();
+  }, [healthData]);
 
   // Maps over the parameters and checks which percentage of the goal was reached (Max 100%). Then the scores are added.
   const calculateScore = () => {

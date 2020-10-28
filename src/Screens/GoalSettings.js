@@ -9,7 +9,7 @@ import {
   TopNavigation,
   TopNavigationAction,
 } from '@ui-kitten/components';
-import {Context} from '../Context/Store';
+import {Context} from '../Context/HealthData';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -19,7 +19,6 @@ const GoalSettings = ({navigation, route}) => {
   const [healthData, setHealthData] = useContext(Context);
   const [weight, setWeight] = useState(route.params.weight);
   const [goal, setGoal] = useState(route.params.goal);
-  let cooooopy = [...healthData];
 
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
@@ -91,7 +90,9 @@ const GoalSettings = ({navigation, route}) => {
         <Text category="h5" style={{marginVertical: 20}}>
           Change Daily Goal
         </Text>
-        <Text>{goal}</Text>
+        <Text>
+          {goal} {route.params.measure}
+        </Text>
         <Button
           appearance="ghost"
           status="primary"
@@ -107,7 +108,7 @@ const GoalSettings = ({navigation, route}) => {
       </Layout>
       <Layout style={{alignItems: 'center'}}>
         <Text category="h5" style={{marginVertical: 20}}>
-          Weighting
+          Weight
         </Text>
         <Text>{weight}</Text>
         <Button

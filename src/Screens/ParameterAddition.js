@@ -9,7 +9,9 @@ import {
   TopNavigationAction,
   ForwardIcon,
 } from '@ui-kitten/components';
-import {Context} from '../Context/Store';
+import LoadData from '../Helpers/LoadData';
+import {Context} from '../Context/HealthData';
+import {Context as HealthKit} from '../Context/HealthKitPermissions';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -17,6 +19,7 @@ const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
 const ParameterAddition = ({navigation, route}) => {
   const [healthData, setHealthData] = useContext(Context);
+  const [permissions, setPermissions] = useContext(HealthKit);
 
   const parameters = [
     {
@@ -24,22 +27,94 @@ const ParameterAddition = ({navigation, route}) => {
       goal: 450,
       increment: 10,
       measure: 'Calories Burned',
+      permission: 'ActiveEnergyBurned',
     },
-    {name: 'Caffeine', goal: 250, increment: 10, measure: 'mg'},
-    {name: 'Carbohydrates', goal: 50, increment: 2, measure: 'g'},
-    {name: 'Fat', goal: 40, increment: 2, measure: 'g'},
-    {name: 'Fiber', goal: 20, icrement: 1, measure: 'g'},
-    {name: 'Mindful Minutes', goal: 10, increment: 5, measure: 'Minutes'},
-    {name: 'Protein', goal: 50, increment: 2, measure: 'g'},
-    {name: 'Sleep', goal: 450, increment: 10, measure: 'Minutes'},
-    {name: 'Step Count', goal: 8000, increment: 100, measure: 'Steps'},
+    /*    {
+      name: 'Caffeine',
+      goal: 250,
+      increment: 10,
+      measure: 'mg',
+      permission: 'Caffeine',
+    },
     {
+      name: 'Carbohydrates',
+      goal: 50,
+      increment: 2,
+      measure: 'g',
+      permission: 'Carbohydrates',
+    },
+    {name: 'Fat', goal: 40, increment: 2, measure: 'g', permission: 'FatTotal'}, */
+    {
+      name: 'Cycling Distance',
+      goal: 6000,
+      increment: 100,
+      measure: 'Meters',
+      permission: 'DistanceCycling',
+    },
+    /* {
+      name: 'Fiber',
+      goal: 20,
+      icrement: 1,
+      measure: 'g',
+      permission: 'Fiber',
+    }, */
+
+    {
+      name: 'Mindful Minutes',
+      goal: 10,
+      increment: 5,
+      measure: 'Minutes',
+      permission: 'MindfulSession',
+    },
+    /*     {
+      name: 'Protein',
+      goal: 50,
+      increment: 2,
+      measure: 'g',
+      permission: 'Protein',
+    }, */
+    {
+      name: 'Sleep',
+      goal: 450,
+      increment: 10,
+      measure: 'Minutes slept',
+      permission: 'SleepAnalysis',
+    },
+    {
+      name: 'Step Count',
+      goal: 8000,
+      increment: 100,
+      measure: 'Steps',
+      permission: 'StepCount',
+    },
+    /*     {
+      name: 'Swimming Distance',
+      goal: 6000,
+      increment: 100,
+      measure: 'Meters',
+      permission: 'DistanceSwimming',
+    }, */
+    /*     {
       name: 'Total Calories',
       goal: 2000,
       increment: 100,
       measure: 'Calories',
+      permission: 'EnergyConsumed',
+    }, */
+    {
+      name: 'Walking / Running Distance',
+      goal: 3000,
+      increment: 100,
+      measure: 'Meters',
+      permission: 'DistanceWalkingRunning',
     },
-    {name: 'Water', goal: 2000, increment: 2, measure: 'ml'},
+    /* {
+      name: 'Water',
+      goal: 2000,
+      increment: 2,
+      measure: 'ml',
+      permission: 'Water',
+    }, */
   ];
 
   const [availableParams, setAvailableParams] = useState([...parameters]);
@@ -51,9 +126,12 @@ const ParameterAddition = ({navigation, route}) => {
   // When a Parameter is Clicked, it is added to the monitored parameters and removed from the list
   const addParam = (element) => {
     let healthDataCopy = [...healthData];
+    let permissionsCopy = [...permissions.permissions.read];
     element.weight = 1;
     healthDataCopy.push(element);
-    setHealthData(healthDataCopy);
+    permissionsCopy.push(element.permission);
+    setPermissions({permissions: {read: permissionsCopy, write: []}});
+    setHealthData(LoadData(permissions, healthDataCopy));
   };
 
   const navigateBack = () => {

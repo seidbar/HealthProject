@@ -31,7 +31,7 @@ const sampleData = [
 export const Context = React.createContext();
 
 // Global state for HealthData
-const Store = ({children}) => {
+const HealthData = ({children}) => {
   const [state, setState] = useState(sampleData);
 
   return (
@@ -39,4 +39,4 @@ const Store = ({children}) => {
   );
 };
 
-export default Store;
+export default HealthData;
