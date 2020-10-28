@@ -126,7 +126,9 @@ const ParameterAddition = ({navigation, route}) => {
   // When a Parameter is Clicked, it is added to the monitored parameters and removed from the list
   const addParam = (element) => {
     let healthDataCopy = [...healthData];
-    let permissionsCopy = [...permissions.permissions.read];
+    let permissionsCopy = permissions.permissions
+      ? [...permissions.permissions.read]
+      : [];
     element.weight = 1;
     healthDataCopy.push(element);
     permissionsCopy.push(element.permission);
@@ -152,7 +154,7 @@ const ParameterAddition = ({navigation, route}) => {
   }, [healthData]);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <TopNavigation
         title="Add Parameters"
         alignment="center"

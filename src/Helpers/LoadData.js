@@ -14,7 +14,11 @@ const LoadData = (healthKitOptions, healthData) => {
   // set date to 00:00 today
 
   let date = new Date();
-  date.setHours(2, 0, 0, 0);
+  let sleepDate = new Date();
+  sleepDate.setHours(19);
+  sleepDate.setDate(date.getDate() - 1);
+
+  date.setHours(0);
   const options = {
     startDate: date.toISOString(),
     endDate: new Date().toISOString(),
@@ -28,7 +32,10 @@ const LoadData = (healthKitOptions, healthData) => {
     }
 
     AppleHealthKit.getActiveEnergyBurned(options, (err, results) => {
-      saveData('Active Energy', results[0] ? Math.floor(results[0].value) : 0);
+      saveData(
+        'Active Energy',
+        results && results[0] ? Math.floor(results[0].value) : 0,
+      );
     });
 
     AppleHealthKit.getStepCount(null, (err, results) => {
@@ -36,14 +43,16 @@ const LoadData = (healthKitOptions, healthData) => {
     });
 
     AppleHealthKit.getMindfulSession(options, (err, results) => {
-      saveData('Mindful Minutes', getTotalMinutes(results));
+      saveData('Mindful Minutes', results ? getTotalMinutes(results) : 0);
     });
 
     // Sleep Data Format needs to be documented first
-    AppleHealthKit.getSleepSamples(options, (err, results) => {
-      saveData('Sleep', 0);
-      console.log(results);
-    });
+    AppleHealthKit.getSleepSamples(
+      {startDate: sleepDate.toISOString(), endDate: new Date().toISOString()},
+      (err, results) => {
+        saveData('Sleep', results ? getTotalSleep(results) : 0);
+      },
+    );
 
     // Method is still buggy
     /*    AppleHealthKit.getDistanceSwimming(null, (err, results) => {
@@ -58,7 +67,7 @@ const LoadData = (healthKitOptions, healthData) => {
     AppleHealthKit.getDistanceWalkingRunning(null, (err, results) => {
       saveData(
         'Walking / Running Distance',
-        results ? Math.floor(results[0].value) : 0,
+        results && results[0] ? Math.floor(results[0].value) : 0,
       );
     });
   });
@@ -84,6 +93,33 @@ const LoadData = (healthKitOptions, healthData) => {
       });
     }
     return totalMinutes;
+  };
+
+  // Due to different sources writing to Sleep, for now only the Apple Watch and the iPhone will be recognized
+  // The function collects info on how much time was spent in bed and how much time was spent sleeping
+  // If the user didn't wear a device, the time in bed will be evaluated.
+  const getTotalSleep = (sessions) => {
+    let timeAsleep = 0;
+    let timeInBed = 0;
+    if (sessions && sessions.length > 0) {
+      sessions.forEach((session) => {
+        if (
+          session.value === 'ASLEEP' &&
+          session.sourceId.startsWith('com.apple.health')
+        ) {
+          timeAsleep +=
+            (new Date(session.endDate) - new Date(session.startDate)) / 60000;
+        } else if (session.value === 'INBED') {
+          timeInBed =
+            timeInBed >
+            (new Date(session.endDate) - new Date(session.startDate)) / 60000
+              ? timeInBed
+              : (new Date(session.endDate) - new Date(session.startDate)) /
+                60000;
+        }
+      });
+    }
+    return timeAsleep > 0 ? timeAsleep : timeInBed;
   };
 
   return healthDataCopy;

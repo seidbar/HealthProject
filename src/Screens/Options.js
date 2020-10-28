@@ -10,7 +10,7 @@ const Options = ({navigation}) => {
   const [healthData, setHealthData] = useContext(Context);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         {healthData.map((element, index) => (
           <SelectItem

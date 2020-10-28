@@ -45,7 +45,7 @@ const Home = ({navigation}) => {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
+      <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
         <ScrollView contentInsetAdjustmentBehavior="automatic">
           <ScoreCard score={score} />
           {healthData

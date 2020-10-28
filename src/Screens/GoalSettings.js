@@ -79,7 +79,7 @@ const GoalSettings = ({navigation, route}) => {
   });
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <TopNavigation
         title={route.params.name}
         alignment="center"

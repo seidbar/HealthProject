@@ -1,38 +1,34 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Sample data for test purposes only. Save to delete
-const sampleData = [
-  {
-    name: 'Active Energy',
-    goal: 450,
-    value: 0,
-    weight: 1,
-    increment: 10,
-    measure: 'Calories Burned',
-  },
-  {
-    name: 'Mindful Minutes',
-    goal: 10,
-    value: 0,
-    weight: 1,
-    increment: 5,
-    measure: 'Minutes',
-  },
-  {
-    name: 'Step Count',
-    goal: 8000,
-    value: 0,
-    weight: 1,
-    increment: 100,
-    measure: 'Steps',
-  },
-];
+const getHealthData = async () => {
+  try {
+    const healthStorage = await AsyncStorage.getItem('healthData');
+    return healthStorage ? JSON.parse(healthStorage) : [];
+  } catch (e) {
+    console.log('Storage fetching failed');
+  }
+};
 
 export const Context = React.createContext();
 
 // Global state for HealthData
 const HealthData = ({children}) => {
-  const [state, setState] = useState(sampleData);
+  const [state, setState] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const healthData = await getHealthData();
+      setState(healthData);
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (state) {
+      AsyncStorage.setItem('healthData', JSON.stringify(state));
+    }
+  }, [state]);
 
   return (
     <Context.Provider value={[state, setState]}>{children}</Context.Provider>
