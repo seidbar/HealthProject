@@ -10,6 +10,7 @@ import {
   TopNavigationAction,
 } from '@ui-kitten/components';
 import {Context} from '../Context/HealthData';
+import {Context as HealthKit} from '../Context/HealthKitPermissions';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -19,6 +20,7 @@ const GoalSettings = ({navigation, route}) => {
   const [healthData, setHealthData] = useContext(Context);
   const [weight, setWeight] = useState(route.params.weight);
   const [goal, setGoal] = useState(route.params.goal);
+  const [permissions, setPermissions] = useContext(HealthKit);
 
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
@@ -59,12 +61,21 @@ const GoalSettings = ({navigation, route}) => {
 
   const removeParameter = () => {
     let healthDataCopy = [...healthData];
+    let permissionsCopy = permissions.permissions
+      ? [...permissions.permissions.read]
+      : [];
     healthDataCopy.forEach((dataset, index) => {
       if (dataset.name === route.params.name) {
         healthDataCopy.splice(index, 1);
       }
     });
+    permissionsCopy.forEach((dataset, index) => {
+      if (dataset === route.params.permission) {
+        permissionsCopy.splice(index, 1);
+      }
+    });
     setHealthData(healthDataCopy);
+    setPermissions({permissions: {read: permissionsCopy, write: []}});
     navigateBack();
   };
 

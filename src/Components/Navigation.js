@@ -17,8 +17,6 @@ const PersonIcon = (props) => <Icon {...props} name="person-outline" />;
 
 const SettingsIcon = (props) => <Icon {...props} name="settings-2-outline" />;
 
-const EmailIcon = (props) => <Icon {...props} name="email-outline" />;
-
 const BottomTabBar = ({navigation, state}) => (
   <BottomNavigation
     selectedIndex={state.index}

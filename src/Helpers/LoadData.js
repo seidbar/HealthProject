@@ -5,73 +5,11 @@ import AppleHealthKit from 'react-native-health';
 // The Helper initializes the Healthkit with all desired parameters
 
 const LoadData = (healthKitOptions, healthData) => {
+  // Make copies of HealthKitOptions and healthData to work with within the function
   healthDataCopy = [...healthData];
+  let permissions = healthKitOptions.permissions.read;
 
-  // Load Data To DO: healthKitOptions need to be pushed to / unshifted to reflect which persmissions are needed
-  // Set Up functions for every Parameter
-  // only functions should be called that are needed
-
-  // set date to 00:00 today
-
-  let date = new Date();
-  let sleepDate = new Date();
-  sleepDate.setHours(19);
-  sleepDate.setDate(date.getDate() - 1);
-
-  date.setHours(0);
-  const options = {
-    startDate: date.toISOString(),
-    endDate: new Date().toISOString(),
-  };
-
-  // Healthkit Initialization and loading of data
-  AppleHealthKit.initHealthKit(healthKitOptions, (err, results) => {
-    if (err) {
-      console.log('error initializing Healthkit: ', err);
-      return;
-    }
-
-    AppleHealthKit.getActiveEnergyBurned(options, (err, results) => {
-      saveData(
-        'Active Energy',
-        results && results[0] ? Math.floor(results[0].value) : 0,
-      );
-    });
-
-    AppleHealthKit.getStepCount(null, (err, results) => {
-      saveData('Step Count', results ? Math.floor(results.value) : 0);
-    });
-
-    AppleHealthKit.getMindfulSession(options, (err, results) => {
-      saveData('Mindful Minutes', results ? getTotalMinutes(results) : 0);
-    });
-
-    // Sleep Data Format needs to be documented first
-    AppleHealthKit.getSleepSamples(
-      {startDate: sleepDate.toISOString(), endDate: new Date().toISOString()},
-      (err, results) => {
-        saveData('Sleep', results ? getTotalSleep(results) : 0);
-      },
-    );
-
-    // Method is still buggy
-    /*    AppleHealthKit.getDistanceSwimming(null, (err, results) => {
-      saveData('Swimming Distance', results ? Math.floor(results[0].value) : 0);
-      console.log(results);
-    }); */
-
-    AppleHealthKit.getDistanceCycling(null, (err, results) => {
-      saveData('Cycling Distance', results ? Math.floor(results[0].value) : 0);
-    });
-
-    AppleHealthKit.getDistanceWalkingRunning(null, (err, results) => {
-      saveData(
-        'Walking / Running Distance',
-        results && results[0] ? Math.floor(results[0].value) : 0,
-      );
-    });
-  });
-
+  // A function that takes the name of a parameter and the value and checks if the parameter is in the data array. The value is then updated.
   const saveData = (name, value) => {
     const found = healthDataCopy.some((element) => element.name === name);
     if (found) {
@@ -121,6 +59,88 @@ const LoadData = (healthKitOptions, healthData) => {
     }
     return timeAsleep > 0 ? timeAsleep : timeInBed;
   };
+
+  // If no permissions are granted, no call to Healthkit will be executed
+  if (permissions.length > 0) {
+    // Instantiate Date objects to pass as criteria for the Healthkit
+    let date = new Date();
+    let sleepDate = new Date();
+    sleepDate.setHours(19);
+    sleepDate.setDate(date.getDate() - 1);
+
+    date.setHours(0);
+
+    const options = {
+      startDate: date.toISOString(),
+      endDate: new Date().toISOString(),
+    };
+
+    // Healthkit Initialization and loading of data
+    // For each option it is first checked if the permission is granted
+    AppleHealthKit.initHealthKit(healthKitOptions, (err, results) => {
+      if (err) {
+        console.log('error initializing Healthkit: ', err);
+        return;
+      }
+
+      if (permissions.indexOf('ActiveEnergyBurned') != -1) {
+        AppleHealthKit.getActiveEnergyBurned(options, (err, results) => {
+          saveData(
+            'Active Energy',
+            results && results[0] ? Math.floor(results[0].value) : 0,
+          );
+        });
+      }
+
+      if (permissions.indexOf('StepCount') != -1) {
+        AppleHealthKit.getStepCount(null, (err, results) => {
+          saveData('Step Count', results ? Math.floor(results.value) : 0);
+        });
+      }
+
+      if (permissions.indexOf('MindfulSession') != -1) {
+        AppleHealthKit.getMindfulSession(options, (err, results) => {
+          saveData('Mindful Minutes', results ? getTotalMinutes(results) : 0);
+        });
+      }
+
+      if (permissions.indexOf('SleepAnalysis') != -1) {
+        AppleHealthKit.getSleepSamples(
+          {
+            startDate: sleepDate.toISOString(),
+            endDate: new Date().toISOString(),
+          },
+          (err, results) => {
+            saveData('Sleep', results ? getTotalSleep(results) : 0);
+          },
+        );
+      }
+
+      // Method is still buggy
+      /*    AppleHealthKit.getDistanceSwimming(null, (err, results) => {
+      saveData('Swimming Distance', results ? Math.floor(results[0].value) : 0);
+      console.log(results);
+    }); */
+
+      if (permissions.indexOf('DistanceCycling') != -1) {
+        AppleHealthKit.getDistanceCycling(null, (err, results) => {
+          saveData(
+            'Cycling Distance',
+            results ? Math.floor(results[0].value) : 0,
+          );
+        });
+      }
+
+      if (permissions.indexOf('DistanceWalkingRunning') != -1) {
+        AppleHealthKit.getDistanceWalkingRunning(null, (err, results) => {
+          saveData(
+            'Walking / Running Distance',
+            results && results[0] ? Math.floor(results[0].value) : 0,
+          );
+        });
+      }
+    });
+  }
 
   return healthDataCopy;
 };
