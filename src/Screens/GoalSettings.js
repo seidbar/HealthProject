@@ -11,6 +11,7 @@ import {
 } from '@ui-kitten/components';
 import {Context} from '../Context/HealthData';
 import {Context as HealthKit} from '../Context/HealthKitPermissions';
+import Slider from '@react-native-community/slider';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -30,12 +31,11 @@ const GoalSettings = ({navigation, route}) => {
     navigation.goBack();
   };
 
-  const saveGoal = (increase) => {
+  const saveGoal = (goal) => {
     let healthDataCopy = [...healthData];
     healthDataCopy.forEach((dataset) => {
       if (dataset.name === route.params.name) {
-        dataset.goal =
-          dataset.goal + increase < 0 ? 0 : dataset.goal + increase;
+        dataset.goal = goal;
       }
     });
     setHealthData(healthDataCopy);
@@ -44,16 +44,11 @@ const GoalSettings = ({navigation, route}) => {
   // Weight allows the user to put emphasis on one or more parameters (Factor 0-5)
   // !! Maybe create a modal that informs the user about the meaning of '0'
 
-  const saveWeight = (increase) => {
+  const saveWeight = (weight) => {
     let healthDataCopy = [...healthData];
     healthDataCopy.forEach((dataset) => {
       if (dataset.name === route.params.name) {
-        dataset.weight =
-          dataset.weight + increase > 4
-            ? 5
-            : dataset.weight + increase < 0
-            ? 0
-            : dataset.weight + increase;
+        dataset.weight = weight;
       }
     });
     setHealthData(healthDataCopy);
@@ -104,7 +99,7 @@ const GoalSettings = ({navigation, route}) => {
         <Text>
           {goal} {route.params.measure}
         </Text>
-        <Button
+        {/*         <Button
           appearance="ghost"
           status="primary"
           onPress={() => saveGoal(route.params.increment)}>
@@ -115,22 +110,29 @@ const GoalSettings = ({navigation, route}) => {
           status="primary"
           onPress={() => saveGoal(-route.params.increment)}>
           -
-        </Button>
+        </Button> */}
+        <Slider
+          style={{width: 200, height: 40}}
+          minimumValue={0}
+          value={goal}
+          step={route.params.increment}
+          onValueChange={(value) => saveGoal(value)}
+          maximumValue={route.params.max}
+        />
       </Layout>
       <Layout style={{alignItems: 'center'}}>
         <Text category="h5" style={{marginVertical: 20}}>
           Weight
         </Text>
         <Text>{weight}</Text>
-        <Button
-          appearance="ghost"
-          status="primary"
-          onPress={() => saveWeight(1)}>
-          +
-        </Button>
-        <Button appearance="ghost" onPress={() => saveWeight(-1)}>
-          -
-        </Button>
+        <Slider
+          style={{width: 200, height: 40}}
+          minimumValue={0}
+          maximumValue={5}
+          step={0.25}
+          onValueChange={(value) => saveWeight(value)}
+          value={weight}
+        />
       </Layout>
       <Layout style={{alignItems: 'center'}}>
         <Button

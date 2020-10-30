@@ -111,7 +111,7 @@ const LoadData = (healthKitOptions, healthData) => {
             endDate: new Date().toISOString(),
           },
           (err, results) => {
-            saveData('Sleep', results ? getTotalSleep(results) : 0);
+            saveData('Sleep', results ? Math.floor(getTotalSleep(results)) : 0);
           },
         );
       }

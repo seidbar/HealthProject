@@ -1,9 +1,17 @@
 import React, {useState, useEffect, useContext} from 'react';
 
-import {SafeAreaView, ScrollView, StatusBar} from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  View,
+  StyleSheet,
+  Text,
+} from 'react-native';
 import {Button} from '@ui-kitten/components';
 import {Context} from '../Context/HealthData';
 import {Context as HealthKitContext} from '../Context/HealthKitPermissions';
+import Slider from '@react-native-community/slider';
 
 import ScoreCard from '../Components/ScoreCard';
 import ProgressBar from '../Components/ProgressBar';
@@ -38,7 +46,7 @@ const Home = ({navigation}) => {
       totalWeight += dataset.weight;
     });
     setScore(
-      totalWeight > 0 ? Math.floor((calculateScore / totalWeight) * 100) : 0,
+      totalWeight > 0 ? Math.floor((calculateScore / totalWeight) * 140) : 0,
     );
   };
 
@@ -47,7 +55,13 @@ const Home = ({navigation}) => {
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
         <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <View style={styles.scoreComponent}>
+            <Text style={styles.scoreTitle}>Your Score Today</Text>
+          </View>
           <ScoreCard score={score} />
+          <View style={styles.scoreComponent}>
+            <Text style={styles.scoreNum}>{score}</Text>
+          </View>
           {healthData
             ? healthData.map((dataset, index) => {
                 return (
@@ -64,6 +78,16 @@ const Home = ({navigation}) => {
           <Button appearance="ghost" status="info" onPress={reload}>
             Reload
           </Button>
+          {/*           Slider to test the color curve */}
+          {/*           <Slider
+            style={{width: 200, height: 40}}
+            minimumValue={0}
+            step={1}
+            onValueChange={(value) => setScore(value)}
+            maximumValue={140}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="#000000"
+          /> */}
         </ScrollView>
       </SafeAreaView>
     </>
@@ -71,3 +95,28 @@ const Home = ({navigation}) => {
 };
 
 export default Home;
+
+const styles = StyleSheet.create({
+  scoreComponent: {
+    alignItems: 'center',
+  },
+  scoreTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#000',
+    margin: 20,
+  },
+  progressScore: {
+    width: 150,
+    height: 150,
+    marginVertical: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scoreNum: {
+    fontSize: 55,
+    fontWeight: '500',
+    position: 'absolute',
+    bottom: 70,
+  },
+});

@@ -25,6 +25,7 @@ const Options = ({navigation}) => {
                 measure: element.measure,
                 increment: element.increment,
                 permission: element.permission,
+                max: element.max,
               })
             }
           />

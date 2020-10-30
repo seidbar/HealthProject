@@ -1,41 +1,29 @@
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {ProgressCircle} from 'react-native-svg-charts';
+import {Text} from 'react-native-svg';
+
 const ScoreCard = ({score}) => {
   return (
-    <>
-      <View style={styles.scoreComponent}>
-        <Text style={styles.scoreTitle}>Your Score Today</Text>
-        <View style={styles.progressScore}>
-          <Text style={styles.scoreNum}>{score}</Text>
-        </View>
-      </View>
-    </>
+    <ProgressCircle
+      style={{height: 200}}
+      progress={score / 140}
+      strokeWidth={20}
+      progressColor={
+        score < 15
+          ? `rgb(176, 0, 0)`
+          : score < 75
+          ? `rgb(176, ${Math.floor(score * 2.34)}, 0)`
+          : score < 100
+          ? `rgb(${Math.floor(176 - (score - 75) * 5.02)}, 176, 0)`
+          : score < 120
+          ? `rgb(0, 176, ${Math.floor((score - 100) * 8.8)})`
+          : score < 140
+          ? `rgb(0, ${Math.floor(176 - (score - 120) * 4.4)}, 176)`
+          : score === 140
+          ? 'rgb(255, 220, 43)'
+          : 'rgb(214, 214, 214)'
+      }></ProgressCircle>
   );
 };
-
-const styles = StyleSheet.create({
-  scoreComponent: {
-    alignItems: 'center',
-  },
-  scoreTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#000',
-    margin: 20,
-  },
-  progressScore: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    marginVertical: 20,
-    backgroundColor: '#ded',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scoreNum: {
-    fontSize: 55,
-    fontWeight: '500',
-  },
-});
 
 export default ScoreCard;
