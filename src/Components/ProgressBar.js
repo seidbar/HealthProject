@@ -27,7 +27,7 @@ const ProgressBar = ({name, goal, value, measure}) => {
 
     filler: {
       height: '100%',
-      width: `${(value / goal) * 100}%`,
+      width: `${(value / goal) * 100 > 100 ? 100 : (value / goal) * 100}%`,
       backgroundColor: 'rgb(71, 173, 71)',
       borderRadius: 20,
       textAlign: 'right',
@@ -41,7 +41,7 @@ const ProgressBar = ({name, goal, value, measure}) => {
         {value} / {goal} {measure}
       </Text>
       <View style={styles.container}>
-        <View style={styles.filler}></View>
+        <View style={styles.filler} />
       </View>
     </View>
   );

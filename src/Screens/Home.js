@@ -24,8 +24,8 @@ const Home = ({navigation}) => {
     HealthKitContext,
   );
 
-  const reload = () => {
-    setHealthData(LoadData(healthKitPermissions, healthData));
+  const reload = async () => {
+    setHealthData(await LoadData(healthKitPermissions, healthData));
   };
 
   useEffect(() => {

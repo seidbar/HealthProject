@@ -8,17 +8,19 @@ const LoadData = (healthKitOptions, healthData) => {
   // Make copies of HealthKitOptions and healthData to work with within the function
   healthDataCopy = [...healthData];
   let permissions = healthKitOptions.permissions.read;
-
+  let testCase = [];
+  /*   console.log(healthDataCopy);
+  console.log(permissions);
+ */
   // A function that takes the name of a parameter and the value and checks if the parameter is in the data array. The value is then updated.
   const saveData = (name, value) => {
-    const found = healthDataCopy.some((element) => element.name === name);
-    if (found) {
-      healthDataCopy.forEach((element) => {
-        if (element.name === name) {
-          element.value = value;
-        }
-      });
-    }
+    testCase.push(name, value);
+    /*     console.log(testCase); */
+    healthDataCopy.forEach((element) => {
+      if (element.name === name) {
+        element.value = value;
+      }
+    });
   };
 
   // Takes an array of Sessions and returns a numeric value of total minutes of the Activity
@@ -139,6 +141,7 @@ const LoadData = (healthKitOptions, healthData) => {
           );
         });
       }
+      console.log(results);
     });
   }
 

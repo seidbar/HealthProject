@@ -1,90 +1,112 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {Icon, SelectItem, Layout, Button} from '@ui-kitten/components';
 
 import {SafeAreaView, ScrollView, View, StyleSheet, Text} from 'react-native';
 import {Context} from '../Context/HealthData';
-import {StackedAreaChart, Grid, YAxis} from 'react-native-svg-charts';
+import {
+  StackedAreaChart,
+  Grid,
+  YAxis,
+  XAxis,
+  LineChart,
+} from 'react-native-svg-charts';
 import * as shape from 'd3-shape';
 
-class StackedAreaExample extends React.PureComponent {
-  render() {
-    const data = [
-      {
-        month: new Date(2015, 0, 1),
-        apples: 0.7,
-        bananas: 0.9,
-        cherries: 1,
-        dates: 0,
-      },
-      {
-        month: new Date(2015, 1, 1),
-        apples: 0.1,
-        bananas: 0.2,
-        cherries: 1,
-        dates: 0.9,
-      },
-      {
-        month: new Date(2015, 2, 1),
-        apples: 0,
-        bananas: 1,
-        cherries: 0.65,
-        dates: 0.85,
-      },
-      {
-        month: new Date(2015, 3, 1),
-        apples: 0.74,
-        bananas: 0.98,
-        cherries: 0.1,
-        dates: 1,
-      },
-      {
-        month: new Date(2015, 4, 1),
-        apples: 0.59,
-        bananas: 0.99,
-        cherries: 0.65,
-        dates: 0.71,
-      },
-      {
-        month: new Date(2015, 5, 1),
-        apples: 1,
-        bananas: 0.22,
-        cherries: 0.9,
-        dates: 0.89,
-      },
-      {
-        month: new Date(2015, 6, 1),
-        apples: 0.25,
-        bananas: 0.28,
-        cherries: 0.95,
-        dates: 0.99,
-      },
-    ];
+const StackedAreaExample = () => {
+  const weight = {
+    steps: 1,
+    caloriesBurned: 1.25,
+    mindfulMinutes: 1.5,
+    sleep: 2,
+  };
+  const data = [
+    {
+      steps: 1,
+      caloriesBurned: 1,
+      mindfulMinutes: 1,
+      sleep: 1,
+    },
+    {
+      steps: 1,
+      caloriesBurned: 1,
+      mindfulMinutes: 1,
+      sleep: 1,
+    },
+    {
+      steps: 0,
+      caloriesBurned: 1,
+      mindfulMinutes: 0.65,
+      sleep: 0.85,
+    },
+    {
+      steps: 0.74,
+      caloriesBurned: 0.98,
+      mindfulMinutes: 0.1,
+      sleep: 1,
+    },
+    {
+      steps: 0.59,
+      caloriesBurned: 0.99,
+      mindfulMinutes: 0.65,
+      sleep: 0.71,
+    },
+    {
+      steps: 1,
+      caloriesBurned: 0.22,
+      mindfulMinutes: 0.9,
+      sleep: 0.89,
+    },
+    {
+      steps: 0.25,
+      caloriesBurned: 0.28,
+      mindfulMinutes: 0.95,
+      sleep: 0.99,
+    },
+  ];
 
-    const colors = ['#8800cc', '#aa00ff', '#cc66ff', '#eeccff'];
-    const keys = ['Steps', 'Calories Burned', 'Minutes Meditated', 'Sleep'];
-    const svgs = [
-      {onPress: () => console.log('apples')},
-      {onPress: () => console.log('bananas')},
-      {onPress: () => console.log('cherries')},
-      {onPress: () => console.log('dates')},
-    ];
+  let totalWeight = 0;
+  let dataBuffer = {
+    steps: 0,
+    caloriesBurned: 0,
+    mindfulMinutes: 0,
+    sleep: 0,
+  };
 
-    return (
-      <View>
-        <StackedAreaChart
-          style={{height: 200, paddingVertical: 16}}
-          data={data}
-          keys={keys}
-          colors={colors}
-          curve={shape.curveNatural}
-          showGrid={false}
-          svgs={svgs}>
-          <Grid />
-        </StackedAreaChart>
+  Object.entries(weight).forEach(([key, value]) => {
+    totalWeight += value;
+  });
+
+  data.forEach((element) => {
+    Object.entries(element).forEach(([key, value]) => {
+      const today = Math.floor((weight[key] * value * 140) / totalWeight);
+      element[key] = today + dataBuffer[key];
+      dataBuffer[key] += today;
+    });
+  });
+
+  const colors = ['#8800cc', '#aa00ff', '#cc66ff', '#eeccff'];
+  const keys = ['steps', 'caloriesBurned', 'mindfulMinutes', 'sleep'];
+  const svgs = [
+    {onPress: () => console.log('apples')},
+    {onPress: () => console.log('bananas')},
+    {onPress: () => console.log('cherries')},
+    {onPress: () => console.log('dates')},
+  ];
+
+  return (
+    <View>
+      <View
+        style={{
+          flexDirection: 'row',
+          height: 300,
+          margin: 3,
+        }}>
         <YAxis
-          style={{position: 'absolute', top: 0, bottom: 0}}
+          style={{marginBottom: 30, marginTop: -22}}
           data={StackedAreaChart.extractDataPoints(data, keys)}
-          contentInset={{top: 10, bottom: 10}}
+          contentInset={{top: 0, bottom: 10}}
+          min={0}
+          max={1100}
           svg={{
             fontSize: 8,
             fill: 'white',
@@ -94,10 +116,34 @@ class StackedAreaExample extends React.PureComponent {
             baselineShift: '3',
           }}
         />
+        <View style={{flex: 1, marginLeft: 10}}>
+          <StackedAreaChart
+            style={{flex: 1}}
+            data={data}
+            keys={keys}
+            colors={colors}
+            curve={shape.curveNatural}
+            showGrid={false}
+            svgs={svgs}
+            gridMax={1000}>
+            <Grid />
+          </StackedAreaChart>
+          <XAxis
+            style={{
+              height: 30,
+              marginVertical: 10,
+            }}
+            data={data}
+            formatLabel={(value, index) => value + 1}
+            contentInset={{left: 10, right: 10}}
+            svg={{fontSize: 10, fill: 'black'}}
+          />
+        </View>
       </View>
-    );
-  }
-}
+      <Text>Your Weekly Score: {dataBuffer.caloriesBurned}</Text>
+    </View>
+  );
+};
 
 const Trends = ({navigation}) => {
   const [healthData, setHealthData] = useContext(Context);
