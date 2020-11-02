@@ -20,6 +20,7 @@ const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const ParameterAddition = ({navigation, route}) => {
   const [healthData, setHealthData] = useContext(Context);
   const [permissions, setPermissions] = useContext(HealthKit);
+  const [loading, setLoading] = useState(false);
 
   const parameters = [
     {
@@ -121,6 +122,14 @@ const ParameterAddition = ({navigation, route}) => {
       measure: 'ml',
       permission: 'Water',
     }, */
+    {
+      name: 'Workout Minutes',
+      goal: 30,
+      increment: 10,
+      max: 400,
+      measure: 'Minutes',
+      permission: 'Workout',
+    },
   ];
 
   const [availableParams, setAvailableParams] = useState([...parameters]);
@@ -140,7 +149,7 @@ const ParameterAddition = ({navigation, route}) => {
     setHealthData(healthDataCopy);
     permissionsCopy.push(element.permission);
     setPermissions({permissions: {read: permissionsCopy, write: []}});
-    LoadData(permissions, healthDataCopy, setHealthData);
+    LoadData(permissions, healthDataCopy, setHealthData, setLoading);
   };
 
   const navigateBack = () => {

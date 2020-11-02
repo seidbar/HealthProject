@@ -3,12 +3,7 @@ import AppleHealthKit from 'react-native-health';
 
 // The Helper initializes the Healthkit with all desired parameters
 
-const LoadData = async (
-  healthKitOptions,
-  healthData,
-  setHealthData,
-  setLoading,
-) => {
+const LoadData = (healthKitOptions, healthData, setHealthData, setLoading) => {
   // Make copies of HealthKitOptions and healthData to work with within the function
   setLoading(true);
   healthDataCopy = [...healthData];
@@ -64,6 +59,18 @@ const LoadData = async (
       });
     }
     return timeAsleep > 0 ? timeAsleep : timeInBed;
+  };
+
+  const getTotalWorkout = (sessions) => {
+    let workoutMinutes = 0;
+
+    if (sessions && sessions.length > 0) {
+      sessions.forEach((session) => {
+        workoutMinutes +=
+          (new Date(session.end) - new Date(session.start)) / 60000;
+      });
+    }
+    return workoutMinutes;
   };
 
   // If no permissions are granted, no call to Healthkit will be executed
@@ -174,11 +181,35 @@ const LoadData = async (
       });
       promiseArray.push(walkingPromise);
     }
+
+    if (permissions.indexOf('Workout') != -1) {
+      const workoutPromise = new Promise((resolve) => {
+        AppleHealthKit.getSamples(
+          {
+            startDate: date.toISOString(),
+            endDate: new Date().toISOString(),
+            type: 'Workout',
+          },
+          (err, results) => {
+            saveArray.push({
+              name: 'Workout Minutes',
+              value:
+                results && results[0]
+                  ? Math.floor(getTotalWorkout(results))
+                  : 0,
+            });
+            resolve(1);
+          },
+        );
+      });
+      promiseArray.push(workoutPromise);
+    }
   }
 
   Promise.all(promiseArray)
     .then(() => saveData(saveArray))
     .then(() => setLoading(false))
+    .then(() => console.log(saveArray))
     .catch((error) => console.log(error));
 };
 

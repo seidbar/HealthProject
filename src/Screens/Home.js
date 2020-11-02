@@ -9,7 +9,6 @@ import {
   Text,
   RefreshControl,
 } from 'react-native';
-import {Button, Spinner} from '@ui-kitten/components';
 import {Context} from '../Context/HealthData';
 import {Context as HealthKitContext} from '../Context/HealthKitPermissions';
 
@@ -110,10 +109,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     position: 'absolute',
     bottom: 70,
-  },
-
-  spinner: {
-    padding: 10,
-    alignItems: 'center',
   },
 });

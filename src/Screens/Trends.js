@@ -11,6 +11,7 @@ import {
   LineChart,
 } from 'react-native-svg-charts';
 import * as shape from 'd3-shape';
+import LinearGradient from 'react-native-linear-gradient';
 
 const StackedAreaExample = () => {
   const weight = {
@@ -141,6 +142,11 @@ const StackedAreaExample = () => {
         </View>
       </View>
       <Text>Your Weekly Score: {dataBuffer.caloriesBurned}</Text>
+      <LinearGradient
+        colors={['#4c669f', '#3b5998', '#192f6a']}
+        style={styles.linearGradient}>
+        <Text style={styles.buttonText}>Sign in with Facebook</Text>
+      </LinearGradient>
     </View>
   );
 };
@@ -186,5 +192,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     position: 'absolute',
     bottom: 70,
+  },
+
+  linearGradient: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 5,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontFamily: 'Gill Sans',
+    textAlign: 'center',
+    margin: 10,
+    color: '#ffffff',
+    backgroundColor: 'transparent',
   },
 });
