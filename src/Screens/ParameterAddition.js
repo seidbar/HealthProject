@@ -137,9 +137,10 @@ const ParameterAddition = ({navigation, route}) => {
       : [];
     element.weight = 1;
     healthDataCopy.push(element);
+    setHealthData(healthDataCopy);
     permissionsCopy.push(element.permission);
     setPermissions({permissions: {read: permissionsCopy, write: []}});
-    setHealthData(LoadData(permissions, healthDataCopy));
+    LoadData(permissions, healthDataCopy, setHealthData);
   };
 
   const navigateBack = () => {

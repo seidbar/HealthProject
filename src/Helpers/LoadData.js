@@ -1,26 +1,24 @@
 import React from 'react';
-
 import AppleHealthKit from 'react-native-health';
 
 // The Helper initializes the Healthkit with all desired parameters
 
-const LoadData = (healthKitOptions, healthData) => {
+const LoadData = async (healthKitOptions, healthData, setHealthData) => {
   // Make copies of HealthKitOptions and healthData to work with within the function
   healthDataCopy = [...healthData];
   let permissions = healthKitOptions.permissions.read;
-  let testCase = [];
-  /*   console.log(healthDataCopy);
-  console.log(permissions);
- */
+  let promiseArray = [];
+  let saveArray = [];
   // A function that takes the name of a parameter and the value and checks if the parameter is in the data array. The value is then updated.
-  const saveData = (name, value) => {
-    testCase.push(name, value);
-    /*     console.log(testCase); */
-    healthDataCopy.forEach((element) => {
-      if (element.name === name) {
-        element.value = value;
-      }
+  const saveData = (arr) => {
+    arr.forEach(({name, value}) => {
+      healthDataCopy.forEach((element) => {
+        if (element.name === name) {
+          element.value = value;
+        }
+      });
     });
+    setHealthData(healthDataCopy);
   };
 
   // Takes an array of Sessions and returns a numeric value of total minutes of the Activity
@@ -79,73 +77,102 @@ const LoadData = (healthKitOptions, healthData) => {
 
     // Healthkit Initialization and loading of data
     // For each option it is first checked if the permission is granted
+    // Then a new Promise is created and the data is pushed to saveArray where it sets the state
     AppleHealthKit.initHealthKit(healthKitOptions, (err, results) => {
       if (err) {
         console.log('error initializing Healthkit: ', err);
         return;
       }
+    });
 
-      if (permissions.indexOf('ActiveEnergyBurned') != -1) {
+    if (permissions.indexOf('ActiveEnergyBurned') != -1) {
+      const energyPromise = new Promise((resolve) => {
         AppleHealthKit.getActiveEnergyBurned(options, (err, results) => {
-          saveData(
-            'Active Energy',
-            results && results[0] ? Math.floor(results[0].value) : 0,
-          );
+          saveArray.push({
+            name: 'Active Energy',
+            value: results && results[0] ? Math.floor(results[0].value) : 0,
+          });
+          resolve(1);
         });
-      }
+      });
+      promiseArray.push(energyPromise);
+    }
 
-      if (permissions.indexOf('StepCount') != -1) {
+    if (permissions.indexOf('StepCount') != -1) {
+      const stepPromise = new Promise((resolve) => {
         AppleHealthKit.getStepCount(null, (err, results) => {
-          saveData('Step Count', results ? Math.floor(results.value) : 0);
+          saveArray.push({
+            name: 'Step Count',
+            value: results ? Math.floor(results.value) : 0,
+          });
+          resolve(1);
         });
-      }
+      });
+      promiseArray.push(stepPromise);
+    }
 
-      if (permissions.indexOf('MindfulSession') != -1) {
+    if (permissions.indexOf('MindfulSession') != -1) {
+      const mindfulPromise = new Promise((resolve) => {
         AppleHealthKit.getMindfulSession(options, (err, results) => {
-          saveData('Mindful Minutes', results ? getTotalMinutes(results) : 0);
+          saveArray.push({
+            name: 'Mindful Minutes',
+            value: results ? getTotalMinutes(results) : 0,
+          });
+          resolve(1);
         });
-      }
+      });
+      promiseArray.push(mindfulPromise);
+    }
 
-      if (permissions.indexOf('SleepAnalysis') != -1) {
+    if (permissions.indexOf('SleepAnalysis') != -1) {
+      const sleepPromise = new Promise((resolve) => {
         AppleHealthKit.getSleepSamples(
           {
             startDate: sleepDate.toISOString(),
             endDate: new Date().toISOString(),
           },
           (err, results) => {
-            saveData('Sleep', results ? Math.floor(getTotalSleep(results)) : 0);
+            saveArray.push({
+              name: 'Sleep',
+              value: results ? Math.floor(getTotalSleep(results)) : 0,
+            });
+            resolve(1);
           },
         );
-      }
+      });
+      promiseArray.push(sleepPromise);
+    }
 
-      // Method is still buggy
-      /*    AppleHealthKit.getDistanceSwimming(null, (err, results) => {
-      saveData('Swimming Distance', results ? Math.floor(results[0].value) : 0);
-      console.log(results);
-    }); */
-
-      if (permissions.indexOf('DistanceCycling') != -1) {
+    if (permissions.indexOf('DistanceCycling') != -1) {
+      const cyclingPromise = new Promise((resolve) => {
         AppleHealthKit.getDistanceCycling(null, (err, results) => {
-          saveData(
-            'Cycling Distance',
-            results ? Math.floor(results[0].value) : 0,
-          );
+          saveArray.push({
+            name: 'Cycling Distance',
+            value: results ? Math.floor(results[0].value) : 0,
+          });
+          resolve(1);
         });
-      }
+      });
+      promiseArray.push(cyclingPromise);
+    }
 
-      if (permissions.indexOf('DistanceWalkingRunning') != -1) {
+    if (permissions.indexOf('DistanceWalkingRunning') != -1) {
+      const walkingPromise = new Promise((resolve) => {
         AppleHealthKit.getDistanceWalkingRunning(null, (err, results) => {
-          saveData(
-            'Walking / Running Distance',
-            results && results[0] ? Math.floor(results[0].value) : 0,
-          );
+          saveArray.push({
+            name: 'Walking / Running Distance',
+            value: results && results[0] ? Math.floor(results[0].value) : 0,
+          });
+          resolve(1);
         });
-      }
-      console.log(results);
-    });
+      });
+      promiseArray.push(walkingPromise);
+    }
   }
 
-  return healthDataCopy;
+  Promise.all(promiseArray)
+    .then(() => saveData(saveArray))
+    .catch((error) => console.log(error));
 };
 
 export default LoadData;

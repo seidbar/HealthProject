@@ -99,18 +99,6 @@ const GoalSettings = ({navigation, route}) => {
         <Text>
           {goal} {route.params.measure}
         </Text>
-        {/*         <Button
-          appearance="ghost"
-          status="primary"
-          onPress={() => saveGoal(route.params.increment)}>
-          +
-        </Button>
-        <Button
-          appearance="ghost"
-          status="primary"
-          onPress={() => saveGoal(-route.params.increment)}>
-          -
-        </Button> */}
         <Slider
           style={{width: 200, height: 40}}
           minimumValue={0}
