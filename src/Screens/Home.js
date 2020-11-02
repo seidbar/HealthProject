@@ -7,11 +7,11 @@ import {
   View,
   StyleSheet,
   Text,
+  RefreshControl,
 } from 'react-native';
-import {Button} from '@ui-kitten/components';
+import {Button, Spinner} from '@ui-kitten/components';
 import {Context} from '../Context/HealthData';
 import {Context as HealthKitContext} from '../Context/HealthKitPermissions';
-import Slider from '@react-native-community/slider';
 
 import ScoreCard from '../Components/ScoreCard';
 import ProgressBar from '../Components/ProgressBar';
@@ -23,9 +23,10 @@ const Home = ({navigation}) => {
   const [healthKitPermissions, setHealthKitPermissions] = useContext(
     HealthKitContext,
   );
+  const [loading, setLoading] = useState(false);
 
   const reload = () => {
-    LoadData(healthKitPermissions, healthData, setHealthData);
+    LoadData(healthKitPermissions, healthData, setHealthData, setLoading);
   };
 
   useEffect(() => {
@@ -54,7 +55,11 @@ const Home = ({navigation}) => {
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
-        <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={reload} />
+          }>
           <View style={styles.scoreComponent}>
             <Text style={styles.scoreTitle}>Your Score Today</Text>
           </View>
@@ -75,19 +80,6 @@ const Home = ({navigation}) => {
                 );
               })
             : null}
-          <Button appearance="ghost" status="info" onPress={reload}>
-            Reload
-          </Button>
-          {/*           Slider to test the color curve */}
-          {/*           <Slider
-            style={{width: 200, height: 40}}
-            minimumValue={0}
-            step={1}
-            onValueChange={(value) => setScore(value)}
-            maximumValue={140}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="#000000"
-          /> */}
         </ScrollView>
       </SafeAreaView>
     </>
@@ -118,5 +110,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     position: 'absolute',
     bottom: 70,
+  },
+
+  spinner: {
+    padding: 10,
+    alignItems: 'center',
   },
 });

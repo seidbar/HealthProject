@@ -3,8 +3,14 @@ import AppleHealthKit from 'react-native-health';
 
 // The Helper initializes the Healthkit with all desired parameters
 
-const LoadData = async (healthKitOptions, healthData, setHealthData) => {
+const LoadData = async (
+  healthKitOptions,
+  healthData,
+  setHealthData,
+  setLoading,
+) => {
   // Make copies of HealthKitOptions and healthData to work with within the function
+  setLoading(true);
   healthDataCopy = [...healthData];
   let permissions = healthKitOptions.permissions.read;
   let promiseArray = [];
@@ -172,6 +178,7 @@ const LoadData = async (healthKitOptions, healthData, setHealthData) => {
 
   Promise.all(promiseArray)
     .then(() => saveData(saveArray))
+    .then(() => setLoading(false))
     .catch((error) => console.log(error));
 };
 
