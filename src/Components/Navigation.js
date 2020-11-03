@@ -38,7 +38,6 @@ const TabNavigator = () => (
     <Screen name="Trends" component={TrendsScreen} />
     <Screen name="Options" component={OptionsScreen} />
     <Screen name="GoalSettings" component={GoalScreen} />
-
     <Screen name="ParameterAddition" component={ParameterScreen} />
   </Navigator>
 );

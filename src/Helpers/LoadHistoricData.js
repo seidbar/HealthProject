@@ -1,32 +1,12 @@
 import React from 'react';
 import AppleHealthKit from 'react-native-health';
 
-// The Helper initializes the Healthkit with all desired parameters
-
-const LoadData = (
-  healthKitOptions,
-  healthData,
-  setHealthData,
-  setLoading,
-  day,
-) => {
+const LoadHistoricData = (healthKitOptions, addHealthData, setLoading, day) => {
   // Make copies of HealthKitOptions and healthData to work with within the function
   setLoading(true);
-  healthDataCopy = [...healthData];
   let permissions = healthKitOptions.permissions.read;
   let promiseArray = [];
-  let saveArray = [];
-  // A function that takes the name of a parameter and the value and checks if the parameter is in the data array. The value is then updated.
-  const saveData = (arr) => {
-    arr.forEach(({name, value}) => {
-      healthDataCopy.forEach((element) => {
-        if (element.name === name) {
-          element.value = value;
-        }
-      });
-    });
-    setHealthData(healthDataCopy);
-  };
+  let saveArray = {date: day};
 
   // Takes an array of Sessions and returns a numeric value of total minutes of the Activity
   const getTotalMinutes = (sessions) => {
@@ -111,10 +91,8 @@ const LoadData = (
     if (permissions.indexOf('ActiveEnergyBurned') != -1) {
       const energyPromise = new Promise((resolve) => {
         AppleHealthKit.getActiveEnergyBurned(options, (err, results) => {
-          saveArray.push({
-            name: 'Active Energy',
-            value: results && results[0] ? Math.floor(results[0].value) : 0,
-          });
+          saveArray['Active Energy'] =
+            results && results[0] ? Math.floor(results[0].value) : 0;
           resolve(1);
         });
       });
@@ -124,10 +102,7 @@ const LoadData = (
     if (permissions.indexOf('StepCount') != -1) {
       const stepPromise = new Promise((resolve) => {
         AppleHealthKit.getStepCount(null, (err, results) => {
-          saveArray.push({
-            name: 'Step Count',
-            value: results ? Math.floor(results.value) : 0,
-          });
+          saveArray['Step Count'] = results ? Math.floor(results.value) : 0;
           resolve(1);
         });
       });
@@ -137,11 +112,10 @@ const LoadData = (
     if (permissions.indexOf('MindfulSession') != -1) {
       const mindfulPromise = new Promise((resolve) => {
         AppleHealthKit.getMindfulSession(options, (err, results) => {
-          saveArray.push({
-            name: 'Mindful Minutes',
-            value: results ? getTotalMinutes(results) : 0,
-          });
-          resolve(1);
+          (saveArray['Mindful Minutes'] = results
+            ? getTotalMinutes(results)
+            : 0),
+            resolve(1);
         });
       });
       promiseArray.push(mindfulPromise);
@@ -155,10 +129,9 @@ const LoadData = (
             endDate: sleepEnd.toISOString(),
           },
           (err, results) => {
-            saveArray.push({
-              name: 'Sleep',
-              value: results ? Math.floor(getTotalSleep(results)) : 0,
-            });
+            saveArray['Sleep'] = results
+              ? Math.floor(getTotalSleep(results))
+              : 0;
             resolve(1);
           },
         );
@@ -169,10 +142,9 @@ const LoadData = (
     if (permissions.indexOf('DistanceCycling') != -1) {
       const cyclingPromise = new Promise((resolve) => {
         AppleHealthKit.getDistanceCycling(null, (err, results) => {
-          saveArray.push({
-            name: 'Cycling Distance',
-            value: results ? Math.floor(results[0].value) : 0,
-          });
+          saveArray['Cycling Distance'] = results
+            ? Math.floor(results[0].value)
+            : 0;
           resolve(1);
         });
       });
@@ -182,10 +154,8 @@ const LoadData = (
     if (permissions.indexOf('DistanceWalkingRunning') != -1) {
       const walkingPromise = new Promise((resolve) => {
         AppleHealthKit.getDistanceWalkingRunning(null, (err, results) => {
-          saveArray.push({
-            name: 'Walking / Running Distance',
-            value: results && results[0] ? Math.floor(results[0].value) : 0,
-          });
+          saveArray['Walking / Running Distance'] =
+            results && results[0] ? Math.floor(results[0].value) : 0;
           resolve(1);
         });
       });
@@ -201,13 +171,8 @@ const LoadData = (
             type: 'Workout',
           },
           (err, results) => {
-            saveArray.push({
-              name: 'Workout Minutes',
-              value:
-                results && results[0]
-                  ? Math.floor(getTotalWorkout(results))
-                  : 0,
-            });
+            saveArray['Workout Minutes'] =
+              results && results[0] ? Math.floor(getTotalWorkout(results)) : 0;
             resolve(1);
           },
         );
@@ -216,7 +181,7 @@ const LoadData = (
     }
 
     Promise.all(promiseArray)
-      .then(() => saveData(saveArray))
+      .then(() => addHealthData(saveArray))
       .then(() => setLoading(false))
       .catch((error) => console.log(error));
   } else {
@@ -224,4 +189,4 @@ const LoadData = (
   }
 };
 
-export default LoadData;
+export default LoadHistoricData;

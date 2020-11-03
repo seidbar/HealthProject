@@ -3,12 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppleHealthKit from 'react-native-health';
 
 const PERMS = AppleHealthKit.Constants.Permissions;
-const sampleData = {
-  permissions: {
-    read: [],
-    write: [],
-  },
-};
 
 const getPermissions = async () => {
   try {
@@ -23,7 +17,12 @@ export const Context = React.createContext();
 
 // Global state for HealthKitPermissions
 const HealthKitPermissions = ({children}) => {
-  const [state, setState] = useState(sampleData);
+  const [state, setState] = useState({
+    permissions: {
+      read: [],
+      write: [],
+    },
+  });
 
   useEffect(() => {
     async function fetchData() {

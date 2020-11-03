@@ -3,6 +3,9 @@ import {Icon, SelectItem, Layout, Button} from '@ui-kitten/components';
 
 import {SafeAreaView, ScrollView, View, StyleSheet, Text} from 'react-native';
 import {Context} from '../Context/HealthData';
+import {Context as AppStatus} from '../Context/AppStatus';
+import {Context as HealthKit} from '../Context/HealthKitPermissions';
+import {Context as HealthHistory} from '../Context/HealthHistory';
 import {
   StackedAreaChart,
   Grid,
@@ -10,88 +13,78 @@ import {
   XAxis,
   LineChart,
 } from 'react-native-svg-charts';
+import LoadHistoricData from '../Helpers/LoadHistoricData';
 import * as shape from 'd3-shape';
 
-const StackedAreaExample = () => {
-  const weight = {
-    steps: 1,
-    caloriesBurned: 1.25,
-    mindfulMinutes: 1.5,
-    sleep: 2,
-  };
-  const data = [
-    {
-      steps: 1,
-      caloriesBurned: 1,
-      mindfulMinutes: 1,
-      sleep: 1,
-    },
-    {
-      steps: 1,
-      caloriesBurned: 1,
-      mindfulMinutes: 1,
-      sleep: 1,
-    },
-    {
-      steps: 0,
-      caloriesBurned: 1,
-      mindfulMinutes: 0.65,
-      sleep: 0.85,
-    },
-    {
-      steps: 0.74,
-      caloriesBurned: 0.98,
-      mindfulMinutes: 0.1,
-      sleep: 1,
-    },
-    {
-      steps: 0.59,
-      caloriesBurned: 0.99,
-      mindfulMinutes: 0.65,
-      sleep: 0.71,
-    },
-    {
-      steps: 1,
-      caloriesBurned: 0.22,
-      mindfulMinutes: 0.9,
-      sleep: 0.89,
-    },
-    {
-      steps: 0.25,
-      caloriesBurned: 0.28,
-      mindfulMinutes: 0.95,
-      sleep: 0.99,
-    },
-  ];
+const StackedArea = () => {
+  const [appStatus, setAppStatus] = useContext(AppStatus);
+  const [permissions, setPermissions] = useContext(HealthKit);
+  const [healthData, setHealthData] = useContext(Context);
+  const [historicData, setHistoricData] = useContext(HealthHistory);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [keys, setKeys] = useState([]);
 
+  const colors = ['#8800cc', '#aa00ff', '#cc66ff' /* '#eeccff' */];
+  const svgs = [];
+  const weight = {};
+  const goal = {};
+  let keyBuffer = [];
+  let today = new Date();
+  const dataBuffer = {};
+  today.setHours(0, 0, 0, 0);
   let totalWeight = 0;
-  let dataBuffer = {
-    steps: 0,
-    caloriesBurned: 0,
-    mindfulMinutes: 0,
-    sleep: 0,
+
+  const addHealthData = (object) => {
+    let dataCopy = data;
+    object['key'] = Math.floor(Math.random() * 100000);
+    dataCopy.push(object);
+    console.log(data.length);
+    if (data.length === 7) {
+      calculateScore();
+      console.log(data);
+    }
   };
 
-  Object.entries(weight).forEach(([key, value]) => {
-    totalWeight += value;
-  });
-
-  data.forEach((element) => {
-    Object.entries(element).forEach(([key, value]) => {
-      const today = Math.floor((weight[key] * value * 140) / totalWeight);
-      element[key] = today + dataBuffer[key];
-      dataBuffer[key] += today;
+  const loadLastWeek = () => {
+    healthData.forEach((element) => {
+      weight[element.name] = element.weight;
+      goal[element.name] = element.goal;
+      dataBuffer[element.name] = 0;
+      keyBuffer.push(element.name);
+      console.log(keyBuffer);
     });
-  });
+    setKeys(keyBuffer);
 
-  const colors = ['#8800cc', '#aa00ff', '#cc66ff', '#eeccff'];
-  const keys = ['steps', 'caloriesBurned', 'mindfulMinutes', 'sleep'];
-  const svgs = [
-    {onPress: () => console.log('apples')},
-    {onPress: () => console.log('bananas')},
-    {onPress: () => console.log('cherries')},
-    {onPress: () => console.log('dates')},
-  ];
+    for (let i = 0; i < 7; i++) {
+      let newDate = new Date(today);
+      newDate.setDate(today.getDate() - i);
+      LoadHistoricData(permissions, addHealthData, setLoading, newDate);
+    }
+    calculateScore(data);
+  };
+
+  const calculateScore = () => {
+    let dataCopy = [...data];
+    Object.entries(weight).forEach(([key, value]) => {
+      totalWeight += value;
+    });
+
+    dataCopy.forEach((element) => {
+      Object.entries(element).forEach(([key, value]) => {
+        if (key != 'date' && key != 'key') {
+          const result = Math.floor(
+            (((weight[key] * value) / goal[key]) * 140) / totalWeight,
+          );
+          element[key] = result + dataBuffer[key];
+          dataBuffer[key] += result;
+        }
+      });
+    });
+    setData(dataCopy);
+    console.log(keys);
+    console.log(data);
+  };
 
   return (
     <View>
@@ -140,14 +133,24 @@ const StackedAreaExample = () => {
           />
         </View>
       </View>
-      <Text>Your Weekly Score: {dataBuffer.caloriesBurned}</Text>
+      <View style={{alignItems: 'center'}}>
+        <Text style={{margin: 10}}>
+          Your Weekly Score: {dataBuffer.caloriesBurned}
+        </Text>
+        {appStatus.fullHistory ? null : (
+          <>
+            <Text>To initialize the graph click below</Text>
+            <Button appearance="ghost" status="info" onPress={loadLastWeek}>
+              Load Full Data
+            </Button>
+          </>
+        )}
+      </View>
     </View>
   );
 };
 
 const Trends = ({navigation}) => {
-  const [healthData, setHealthData] = useContext(Context);
-
   return (
     <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
@@ -156,7 +159,7 @@ const Trends = ({navigation}) => {
             <Text style={styles.scoreTitle}>This weeks performance</Text>
           </View>
         </Layout>
-        <StackedAreaExample></StackedAreaExample>
+        <StackedArea></StackedArea>
       </ScrollView>
     </SafeAreaView>
   );
@@ -186,20 +189,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     position: 'absolute',
     bottom: 70,
-  },
-
-  linearGradient: {
-    flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
-    borderRadius: 5,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontFamily: 'Gill Sans',
-    textAlign: 'center',
-    margin: 10,
-    color: '#ffffff',
-    backgroundColor: 'transparent',
   },
 });
