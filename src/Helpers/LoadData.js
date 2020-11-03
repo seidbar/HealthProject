@@ -3,10 +3,17 @@ import AppleHealthKit from 'react-native-health';
 
 // The Helper initializes the Healthkit with all desired parameters
 
-const LoadData = (healthKitOptions, healthData, setHealthData, setLoading) => {
+const LoadData = (
+  healthKitOptions,
+  healthData,
+  setHealthData,
+  setLoading,
+  day,
+) => {
   // Make copies of HealthKitOptions and healthData to work with within the function
   setLoading(true);
   healthDataCopy = [...healthData];
+  console.log(healthKitOptions);
   let permissions = healthKitOptions.permissions.read;
   let promiseArray = [];
   let saveArray = [];
@@ -76,16 +83,20 @@ const LoadData = (healthKitOptions, healthData, setHealthData, setLoading) => {
   // If no permissions are granted, no call to Healthkit will be executed
   if (permissions.length > 0) {
     // Instantiate Date objects to pass as criteria for the Healthkit
-    let date = new Date();
-    let sleepDate = new Date();
-    sleepDate.setHours(19);
+    let date = new Date(day);
+    let end = new Date(day);
+    let sleepDate = new Date(day);
+    let sleepEnd = new Date(day);
+    sleepDate.setHours(18);
     sleepDate.setDate(date.getDate() - 1);
+    sleepEnd.setHours(18);
 
-    date.setHours(0);
+    date.setHours(0, 0, 0);
+    end.setHours(23, 59, 59);
 
     const options = {
       startDate: date.toISOString(),
-      endDate: new Date().toISOString(),
+      endDate: end.toISOString(),
     };
 
     // Healthkit Initialization and loading of data
@@ -142,7 +153,7 @@ const LoadData = (healthKitOptions, healthData, setHealthData, setLoading) => {
         AppleHealthKit.getSleepSamples(
           {
             startDate: sleepDate.toISOString(),
-            endDate: new Date().toISOString(),
+            endDate: sleepEnd.toISOString(),
           },
           (err, results) => {
             saveArray.push({
@@ -187,7 +198,7 @@ const LoadData = (healthKitOptions, healthData, setHealthData, setLoading) => {
         AppleHealthKit.getSamples(
           {
             startDate: date.toISOString(),
-            endDate: new Date().toISOString(),
+            endDate: end.toISOString(),
             type: 'Workout',
           },
           (err, results) => {

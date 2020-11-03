@@ -20,7 +20,7 @@ const ScoreCard = ({score}) => {
           : score < 140
           ? `rgb(0, ${Math.floor(176 - (score - 120) * 4.4)}, 176)`
           : score === 140
-          ? 'rgb(255, 220, 43)'
+          ? 'rgb(207, 181, 59)'
           : 'rgb(214, 214, 214)'
       }></ProgressCircle>
   );

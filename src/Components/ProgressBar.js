@@ -14,7 +14,7 @@ const ProgressBar = ({name, goal, value, measure}) => {
         <View
           style={{
             width: `${
-              (value / goal) * 100 > 100 ? 100 : (value / goal) * 100 > 100
+              (value / goal) * 100 > 100 ? 100 : (value / goal) * 100
             }%`,
             backgroundColor:
               score < 15
@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
 
   filler: {
     height: '100%',
-
     borderRadius: 20,
     textAlign: 'right',
   },

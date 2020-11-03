@@ -23,9 +23,16 @@ const Home = ({navigation}) => {
     HealthKitContext,
   );
   const [loading, setLoading] = useState(false);
+  const today = new Date();
 
   const reload = () => {
-    LoadData(healthKitPermissions, healthData, setHealthData, setLoading);
+    LoadData(
+      healthKitPermissions,
+      healthData,
+      setHealthData,
+      setLoading,
+      today,
+    );
   };
 
   useEffect(() => {
