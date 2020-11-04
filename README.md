@@ -22,4 +22,4 @@ If you want to test the App on your iPhone, you will have to run it through Xcod
 * Download the repo on your local hard drive
 * Connect your iPhone to your Mac
 * Open the iOS Folder in xCode and select your phone. Then click 'Build'
-
+* Ob your phone, go into your Settings and trust the Application.
