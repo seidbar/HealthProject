@@ -12,6 +12,7 @@ import {
 import LoadData from '../Helpers/LoadData';
 import {Context} from '../Context/HealthData';
 import {Context as HealthKit} from '../Context/HealthKitPermissions';
+import {Context as HealthHistory} from '../Context/HealthHistory';
 
 const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 
@@ -20,6 +21,7 @@ const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
 const ParameterAddition = ({navigation, route}) => {
   const [healthData, setHealthData] = useContext(Context);
   const [permissions, setPermissions] = useContext(HealthKit);
+  const [historicData, setHistoricData] = useContext(HealthHistory);
   const [loading, setLoading] = useState(false);
 
   const parameters = [
@@ -147,6 +149,7 @@ const ParameterAddition = ({navigation, route}) => {
     element.weight = 1;
     healthDataCopy.push(element);
     setHealthData(healthDataCopy);
+    setHistoricData([]);
     permissionsCopy.push(element.permission);
     setPermissions({permissions: {read: permissionsCopy, write: []}});
     LoadData(

@@ -40,33 +40,37 @@ const Trends = ({navigation}) => {
   today.setHours(0, 0, 0, 0);
 
   useEffect(() => {
-    healthData.forEach((element) => keyBuffer.push(element.name));
-    setKeys(keyBuffer);
+    if (historicData.length > 1) {
+      healthData.forEach((element) => keyBuffer.push(element.name));
+      setKeys(keyBuffer);
 
-    let graphBuffer = {};
+      let graphBuffer = {};
 
-    historicData.forEach((element) => {
-      Object.entries(element).forEach(([key, value]) => {
-        if (key != 'date' && key != 'key') {
-          if (graphBuffer[key]) {
-            graphBuffer[key].push(value);
-          } else {
-            graphBuffer[key] = [value];
+      historicData.forEach((element) => {
+        Object.entries(element).forEach(([key, value]) => {
+          if (key != 'date' && key != 'key') {
+            if (graphBuffer[key]) {
+              graphBuffer[key].push(value);
+            } else {
+              graphBuffer[key] = [value];
+            }
           }
-        }
+        });
       });
-    });
-    setGraphData(graphBuffer);
-    calculateWeeklyScore();
+      setGraphData(graphBuffer);
+      calculateWeeklyScore();
+    }
   }, [historicData]);
 
   const calculateWeeklyScore = () => {
     let scoreBuffer = 0;
-    Object.entries(historicData[6]).forEach(([key, value]) => {
-      if (key != 'date' && key != 'key') {
-        scoreBuffer += value;
-      }
-    });
+    historicData[6]
+      ? Object.entries(historicData[6]).forEach(([key, value]) => {
+          if (key != 'date' && key != 'key') {
+            scoreBuffer += value;
+          }
+        })
+      : null;
     setWeeklyScore(scoreBuffer);
   };
 
@@ -130,40 +134,47 @@ const Trends = ({navigation}) => {
             <Text style={styles.scoreTitle}>This weeks performance</Text>
           </View>
         </Layout>
-        <OverviewGraph
-          colors={colors}
-          keys={keys}
-          data={historicData}></OverviewGraph>
-        <View style={{alignItems: 'center'}}>
-          <Text style={{margin: 10}}>Your Weekly Score: {weeklyScore}</Text>
-          {appStatus.fullHistory ? null : (
-            <>
-              <Text>To initialize the graph click below</Text>
-              <Button appearance="ghost" status="info" onPress={loadLastWeek}>
-                Load Full Data
-              </Button>
-            </>
-          )}
-        </View>
-        <Layout style={{alignItems: 'center'}}>
-          <View style={styles.scoreComponent}>
-            <Text style={styles.scoreTitle}>Check individual scores</Text>
-          </View>
-        </Layout>
-        {Object.entries(historicData[0]).map(([key, value]) => {
-          if (key != 'date' && key != 'key') {
-            return (
-              <View key={Math.floor(Math.random() * 10000)}>
-                <Text>{key}</Text>
-                <AreaChart
-                  name={key}
-                  graphData={graphData[key]}
-                  max={1000 / (Object.keys(historicData[0]).length - 2)}
-                />
+        {historicData.length > 0 ? (
+          <>
+            <OverviewGraph
+              colors={colors}
+              keys={keys}
+              data={historicData}></OverviewGraph>
+            <View style={{alignItems: 'center'}}>
+              <Text style={{margin: 10}}>Your Weekly Score: {weeklyScore}</Text>
+              {appStatus.fullHistory ? null : (
+                <>
+                  <Text>To initialize the graph click below</Text>
+                  <Button
+                    appearance="ghost"
+                    status="info"
+                    onPress={loadLastWeek}>
+                    Load Full Data
+                  </Button>
+                </>
+              )}
+            </View>
+            <Layout style={{alignItems: 'center'}}>
+              <View style={styles.scoreComponent}>
+                <Text style={styles.scoreTitle}>Check individual scores</Text>
               </View>
-            );
-          }
-        })}
+            </Layout>
+            {Object.entries(historicData[0]).map(([key, value]) => {
+              if (key != 'date' && key != 'key') {
+                return (
+                  <View key={Math.floor(Math.random() * 10000)}>
+                    <Text>{key}</Text>
+                    <AreaChart
+                      name={key}
+                      graphData={graphData[key]}
+                      max={1000 / (Object.keys(historicData[0]).length - 2)}
+                    />
+                  </View>
+                );
+              }
+            })}
+          </>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
