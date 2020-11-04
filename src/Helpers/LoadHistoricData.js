@@ -105,7 +105,6 @@ const LoadHistoricData = (healthKitOptions, addHealthData, setLoading, day) => {
           {date: date.toISOString()},
           (err, results) => {
             saveArray['Step Count'] = results ? Math.floor(results.value) : 0;
-            console.log(results);
             resolve(1);
           },
         );

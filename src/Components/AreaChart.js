@@ -8,7 +8,6 @@ const Chart = ({name, graphData, max}) => {
   const Line = ({line}) => (
     <Path key={'line'} d={line} stroke={'rgb(134, 65, 244)'} fill={'none'} />
   );
-  console.log(max);
 
   return data ? (
     <AreaChart

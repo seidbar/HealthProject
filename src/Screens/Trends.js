@@ -54,17 +54,21 @@ const Trends = ({navigation}) => {
             graphBuffer[key] = [value];
           }
         }
-        console.log(graphBuffer);
       });
     });
     setGraphData(graphBuffer);
+    calculateWeeklyScore();
+  }, [historicData]);
 
+  const calculateWeeklyScore = () => {
+    let scoreBuffer = 0;
     Object.entries(historicData[6]).forEach(([key, value]) => {
       if (key != 'date' && key != 'key') {
-        setWeeklyScore(weeklyScore + value);
+        scoreBuffer += value;
       }
     });
-  }, [healthData]);
+    setWeeklyScore(scoreBuffer);
+  };
 
   const addHealthData = (object) => {
     object['key'] = Math.floor(Math.random() * 100000);
@@ -80,7 +84,7 @@ const Trends = ({navigation}) => {
 
   const loadLastWeek = () => {
     interim = [];
-    setWeeklyScore(0);
+
     healthData.forEach((element) => {
       weight[element.name] = element.weight;
       goal[element.name] = element.goal;
@@ -110,11 +114,10 @@ const Trends = ({navigation}) => {
           );
           element[key] = result + dataBuffer[key];
           dataBuffer[key] += result;
-          setWeeklyScore(weeklyScore + result);
         }
       });
     });
-
+    calculateWeeklyScore();
     setAppStatus({intro: true, fullHistory: true});
   };
 
@@ -149,7 +152,6 @@ const Trends = ({navigation}) => {
         </Layout>
         {Object.entries(historicData[0]).map(([key, value]) => {
           if (key != 'date' && key != 'key') {
-            console.log(Object.keys(historicData[0]).length);
             return (
               <View key={Math.floor(Math.random() * 10000)}>
                 <Text>{key}</Text>

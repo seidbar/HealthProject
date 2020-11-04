@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import HomeScreen from '../Screens/Home';
 import OptionsScreen from '../Screens/Options';
@@ -12,6 +12,8 @@ import {
   Icon,
 } from '@ui-kitten/components';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import Intro from '../Screens/Intro';
+import {Context} from '../Context/AppStatus';
 
 const {Navigator, Screen} = createBottomTabNavigator();
 
@@ -42,10 +44,14 @@ const TabNavigator = () => (
   </Navigator>
 );
 
-export const AppNavigator = () => (
-  <SafeAreaProvider>
-    <NavigationContainer>
-      <TabNavigator />
-    </NavigationContainer>
-  </SafeAreaProvider>
-);
+export const AppNavigator = () => {
+  const [appStatus, setAppStatus] = useContext(Context);
+
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <TabNavigator />
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
+};
