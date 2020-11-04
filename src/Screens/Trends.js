@@ -149,10 +149,15 @@ const Trends = ({navigation}) => {
         </Layout>
         {Object.entries(historicData[0]).map(([key, value]) => {
           if (key != 'date' && key != 'key') {
+            console.log(Object.keys(historicData[0]).length);
             return (
               <View key={Math.floor(Math.random() * 10000)}>
                 <Text>{key}</Text>
-                <AreaChart name={key} graphData={graphData[key]} />
+                <AreaChart
+                  name={key}
+                  graphData={graphData[key]}
+                  max={1000 / (Object.keys(historicData[0]).length - 2)}
+                />
               </View>
             );
           }
