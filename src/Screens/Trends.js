@@ -1,58 +1,91 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Icon, SelectItem, Layout, Button} from '@ui-kitten/components';
 
-import {SafeAreaView, ScrollView, View, StyleSheet, Text} from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  StyleSheet,
+  Text,
+  RefreshControl,
+} from 'react-native';
 import {Context} from '../Context/HealthData';
 import {Context as AppStatus} from '../Context/AppStatus';
 import {Context as HealthKit} from '../Context/HealthKitPermissions';
 import {Context as HealthHistory} from '../Context/HealthHistory';
-import {
-  StackedAreaChart,
-  Grid,
-  YAxis,
-  XAxis,
-  LineChart,
-} from 'react-native-svg-charts';
+import OverviewGraph from '../Components/OverviewGraph';
+import AreaChart from '../Components/AreaChart';
 import LoadHistoricData from '../Helpers/LoadHistoricData';
-import * as shape from 'd3-shape';
 
-const StackedArea = () => {
+const Trends = ({navigation}) => {
   const [appStatus, setAppStatus] = useContext(AppStatus);
   const [permissions, setPermissions] = useContext(HealthKit);
   const [healthData, setHealthData] = useContext(Context);
   const [historicData, setHistoricData] = useContext(HealthHistory);
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
   const [keys, setKeys] = useState([]);
+  const [graphData, setGraphData] = useState([]);
+  const [weeklyScore, setWeeklyScore] = useState(0);
+  let interim = [];
 
-  const colors = ['#8800cc', '#aa00ff', '#cc66ff' /* '#eeccff' */];
-  const svgs = [];
+  const colors = ['#8800cc', '#aa00ff', '#cc66ff', '#eeccff'];
   const weight = {};
   const goal = {};
-  let keyBuffer = [];
-  let today = new Date();
   const dataBuffer = {};
-  today.setHours(0, 0, 0, 0);
   let totalWeight = 0;
 
+  let keyBuffer = [];
+  let today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+
+  useEffect(() => {
+    healthData.forEach((element) => keyBuffer.push(element.name));
+    setKeys(keyBuffer);
+
+    let graphBuffer = {};
+
+    historicData.forEach((element) => {
+      Object.entries(element).forEach(([key, value]) => {
+        if (key != 'date' && key != 'key') {
+          if (graphBuffer[key]) {
+            graphBuffer[key].push(value);
+          } else {
+            graphBuffer[key] = [value];
+          }
+        }
+        console.log(graphBuffer);
+      });
+    });
+    setGraphData(graphBuffer);
+
+    Object.entries(historicData[6]).forEach(([key, value]) => {
+      if (key != 'date' && key != 'key') {
+        setWeeklyScore(weeklyScore + value);
+      }
+    });
+  }, [healthData]);
+
   const addHealthData = (object) => {
-    let dataCopy = data;
     object['key'] = Math.floor(Math.random() * 100000);
-    dataCopy.push(object);
-    console.log(data.length);
-    if (data.length === 7) {
+    interim.push(object);
+    console.log(interim.length);
+
+    if (interim.length === 7) {
       calculateScore();
-      console.log(data);
+      setLoading(false);
+      setHistoricData(interim);
     }
   };
 
   const loadLastWeek = () => {
+    interim = [];
+    setWeeklyScore(0);
     healthData.forEach((element) => {
       weight[element.name] = element.weight;
       goal[element.name] = element.goal;
       dataBuffer[element.name] = 0;
       keyBuffer.push(element.name);
-      console.log(keyBuffer);
     });
     setKeys(keyBuffer);
 
@@ -61,16 +94,15 @@ const StackedArea = () => {
       newDate.setDate(today.getDate() - i);
       LoadHistoricData(permissions, addHealthData, setLoading, newDate);
     }
-    calculateScore(data);
+    calculateScore(historicData);
   };
 
   const calculateScore = () => {
-    let dataCopy = [...data];
     Object.entries(weight).forEach(([key, value]) => {
       totalWeight += value;
     });
 
-    dataCopy.forEach((element) => {
+    interim.forEach((element) => {
       Object.entries(element).forEach(([key, value]) => {
         if (key != 'date' && key != 'key') {
           const result = Math.floor(
@@ -78,88 +110,53 @@ const StackedArea = () => {
           );
           element[key] = result + dataBuffer[key];
           dataBuffer[key] += result;
+          setWeeklyScore(weeklyScore + result);
         }
       });
     });
-    setData(dataCopy);
-    console.log(keys);
-    console.log(data);
+
+    setAppStatus({intro: true, fullHistory: true});
   };
 
   return (
-    <View>
-      <View
-        style={{
-          flexDirection: 'row',
-          height: 300,
-          margin: 3,
-        }}>
-        <YAxis
-          style={{marginBottom: 30, marginTop: -22}}
-          data={StackedAreaChart.extractDataPoints(data, keys)}
-          contentInset={{top: 0, bottom: 10}}
-          min={0}
-          max={1100}
-          svg={{
-            fontSize: 8,
-            fill: 'white',
-            stroke: 'black',
-            strokeWidth: 0.1,
-            alignmentBaseline: 'baseline',
-            baselineShift: '3',
-          }}
-        />
-        <View style={{flex: 1, marginLeft: 10}}>
-          <StackedAreaChart
-            style={{flex: 1}}
-            data={data}
-            keys={keys}
-            colors={colors}
-            curve={shape.curveNatural}
-            showGrid={false}
-            svgs={svgs}
-            gridMax={1000}>
-            <Grid />
-          </StackedAreaChart>
-          <XAxis
-            style={{
-              height: 30,
-              marginVertical: 10,
-            }}
-            data={data}
-            formatLabel={(value, index) => value + 1}
-            contentInset={{left: 10, right: 10}}
-            svg={{fontSize: 10, fill: 'black'}}
-          />
-        </View>
-      </View>
-      <View style={{alignItems: 'center'}}>
-        <Text style={{margin: 10}}>
-          Your Weekly Score: {dataBuffer.caloriesBurned}
-        </Text>
-        {appStatus.fullHistory ? null : (
-          <>
-            <Text>To initialize the graph click below</Text>
-            <Button appearance="ghost" status="info" onPress={loadLastWeek}>
-              Load Full Data
-            </Button>
-          </>
-        )}
-      </View>
-    </View>
-  );
-};
-
-const Trends = ({navigation}) => {
-  return (
     <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <RefreshControl refreshing={loading} onRefresh={loadLastWeek} />
         <Layout style={{alignItems: 'center'}}>
           <View style={styles.scoreComponent}>
             <Text style={styles.scoreTitle}>This weeks performance</Text>
           </View>
         </Layout>
-        <StackedArea></StackedArea>
+        <OverviewGraph
+          colors={colors}
+          keys={keys}
+          data={historicData}></OverviewGraph>
+        <View style={{alignItems: 'center'}}>
+          <Text style={{margin: 10}}>Your Weekly Score: {weeklyScore}</Text>
+          {appStatus.fullHistory ? null : (
+            <>
+              <Text>To initialize the graph click below</Text>
+              <Button appearance="ghost" status="info" onPress={loadLastWeek}>
+                Load Full Data
+              </Button>
+            </>
+          )}
+        </View>
+        <Layout style={{alignItems: 'center'}}>
+          <View style={styles.scoreComponent}>
+            <Text style={styles.scoreTitle}>Check individual scores</Text>
+          </View>
+        </Layout>
+        {Object.entries(historicData[0]).map(([key, value]) => {
+          if (key != 'date' && key != 'key') {
+            return (
+              <View key={Math.floor(Math.random() * 10000)}>
+                <Text>{key}</Text>
+                <AreaChart name={key} graphData={graphData[key]} />
+              </View>
+            );
+          }
+        })}
       </ScrollView>
     </SafeAreaView>
   );

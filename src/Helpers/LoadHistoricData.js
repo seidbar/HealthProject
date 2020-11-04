@@ -101,10 +101,14 @@ const LoadHistoricData = (healthKitOptions, addHealthData, setLoading, day) => {
 
     if (permissions.indexOf('StepCount') != -1) {
       const stepPromise = new Promise((resolve) => {
-        AppleHealthKit.getStepCount(null, (err, results) => {
-          saveArray['Step Count'] = results ? Math.floor(results.value) : 0;
-          resolve(1);
-        });
+        AppleHealthKit.getStepCount(
+          {date: date.toISOString()},
+          (err, results) => {
+            saveArray['Step Count'] = results ? Math.floor(results.value) : 0;
+            console.log(results);
+            resolve(1);
+          },
+        );
       });
       promiseArray.push(stepPromise);
     }
@@ -182,7 +186,6 @@ const LoadHistoricData = (healthKitOptions, addHealthData, setLoading, day) => {
 
     Promise.all(promiseArray)
       .then(() => addHealthData(saveArray))
-      .then(() => setLoading(false))
       .catch((error) => console.log(error));
   } else {
     console.log('No permissions found');
